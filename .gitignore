@@ -1,0 +1,15 @@
+/bin/
+/build/
+/dist/
+/images/
+*.dslb
+*.test
+*.out
+*.lmctl
+*.lmc
+/v1.txt
+*client_secret*.json
+*token*.json
+.env
+.env.*
+data/

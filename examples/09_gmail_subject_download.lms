@@ -1,0 +1,130 @@
+# Export all emails whose subject contains a given string (default "ORDER-1005"):
+# saves full text, metadata JSON, and attachments with timestamped filenames, plus index.md.
+#
+# Live run example:
+#   LMGOOGLE_LIVE=1 LMGOOGLE_READ_ONLY=1 lmscript examples/09_gmail_subject_download.lms
+# Optional overrides: GMAIL_SUBJECT="..." GMAIL_QUERY="..." GMAIL_QUERIES="q1||q2" GMAIL_OUT_DIR="/path/to/export_dir"
+
+subj = env("GMAIL_SUBJECT") || "ORDER-1005";
+query_str = env("GMAIL_QUERY") || ("subject:\"" + subj + "\"");
+queries_raw = env("GMAIL_QUERIES") || query_str;
+out_dir = env("GMAIL_OUT_DIR");
+if (!out_dir) {
+  if (env("LMGOOGLE_LIVE") == "1" && env("HOME")) {
+    out_dir = path_join(env("HOME"), "gmail_exports", subj);
+  } else {
+    out_dir = path_join("build", "examples", "09_gmail_" + subj);
+  }
+}
+mkdir(out_dir);
+
+s = load_schema(cli="lmgoogle");
+p = _lmcode_ s;
+  let dir = ${out_dir};
+  let q = ${queries_raw};
+  let qs = str_split(q, "||");
+  let seen = str_map();
+  let ids = str_list();
+  let raw_matches = 0;
+  for (qi in range(0, qs.len())) {
+    let subq = qs.at(qi);
+    if (subq != "") {
+      let batch = google.gmail_search_messages(subq, 5000);
+      raw_matches = raw_matches + batch.len();
+      for (bi in range(0, batch.len())) {
+        let mid = batch.at(bi);
+        if (!seen.has(mid)) {
+          seen.set(mid, "1");
+          ids.add(mid);
+        }
+      }
+    }
+  }
+
+  let total_files = 0;
+  let total_attachments = 0;
+
+  let index_md = "# Gmail Export: `" + q + "`\n\n"
+    + "- **Matched emails:** " + str(ids.len()) + "\n"
+    + "- **Raw matches (before dedup):** " + str(raw_matches) + "\n"
+    + "- **Output directory:** `" + dir + "`\n\n"
+    + "## Messages\n\n"
+    + "| Time (UTC) | Date Header | From | To | Subject | Downloaded Files |\n"
+    + "|---|---|---|---|---|---|\n";
+
+  let details_md = "\n## Details & Downloaded Files\n";
+
+  for (i in range(0, ids.len())) {
+    let id = ids.at(i);
+    let msg = google.gmail_get_message(id);
+    let ts = msg.timestamp_slug();
+    if (ts == "") { ts = "00000000T000000Z"; }
+    let base = ts + "_" + msg.id();
+    let txt_name = base + ".txt";
+    let json_name = base + ".json";
+    let txt_path = dir + "/" + txt_name;
+    let json_path = dir + "/" + json_name;
+
+    let full_text = "ID: " + msg.id() + "\n"
+      + "Thread-ID: " + msg.thread_id() + "\n"
+      + "Time (UTC): " + msg.date_iso() + "\n"
+      + "Date: " + msg.date() + "\n"
+      + "From: " + msg.from() + "\n"
+      + "To: " + msg.to() + "\n"
+      + "Subject: " + msg.subject() + "\n"
+      + "\n--- BODY ---\n"
+      + msg.body_text() + "\n";
+
+    file_write(txt_path, full_text);
+    file_write(json_path, msg.to_json().to_json());
+    total_files = total_files + 2;
+
+    let saved = google.gmail_download_attachments_prefixed(msg.id(), dir + "/attachments", base + "_");
+    total_attachments = total_attachments + saved.len();
+    total_files = total_files + saved.len();
+
+    let files_cell = "[`" + txt_name + "`](./" + txt_name + "), [`" + json_name + "`](./" + json_name + ")";
+    let files_list = "- Text: [`" + txt_name + "`](./" + txt_name + ")\n"
+      + "- JSON: [`" + json_name + "`](./" + json_name + ")\n";
+
+    for (ai in range(0, saved.len())) {
+      let sp = saved.at(ai);
+      let parts = str_split(sp, "/");
+      let rel_name = parts.at(parts.len() - 1);
+      let rel_link = "attachments/" + rel_name;
+      files_cell = files_cell + ", [`" + rel_name + "`](./" + rel_link + ")";
+      files_list = files_list + "- Attachment: [`" + rel_name + "`](./" + rel_link + ")\n";
+    }
+
+    let safe_time = str_replace(msg.date(), "|", "\\|");
+    let safe_from = str_replace(msg.from(), "|", "\\|");
+    let safe_to = str_replace(msg.to(), "|", "\\|");
+    let safe_subj = str_replace(msg.subject(), "|", "\\|");
+
+    index_md = index_md + "| " + msg.date_iso() + " | " + safe_time + " | " + safe_from + " | " + safe_to + " | " + safe_subj + " | " + files_cell + " |\n";
+
+    details_md = details_md + "\n### " + msg.date_iso() + " — " + msg.subject() + "\n\n"
+      + "- **Time (UTC):** " + msg.date_iso() + " (`" + msg.date() + "`)\n"
+      + "- **From:** " + msg.from() + "\n"
+      + "- **To:** " + msg.to() + "\n"
+      + "- **Subject:** " + msg.subject() + "\n"
+      + "- **Message ID:** `" + msg.id() + "` (Thread: `" + msg.thread_id() + "`)\n"
+      + "- **Downloaded Files:**\n"
+      + files_list;
+  }
+
+  index_md = index_md + details_md;
+  file_write(dir + "/index.md", index_md);
+
+  $return.query = q;
+  $return.out_dir = dir;
+  $return.matched = ids.len();
+  $return.total_files = total_files;
+  $return.attachments_downloaded = total_attachments;
+  $return.err = google.last_error();
+end _lmcode_
+
+r = run_lmcode(p);
+assert(r.ok && r.result.err == "", "09_gmail_subject_download failed");
+assert(r.result.matched >= 1, "expected at least 1 matching email");
+println("ok 09_gmail_subject_download query=" + r.result.query + " matched=" + str(r.result.matched) + " files=" + str(r.result.total_files) + " attachments=" + str(r.result.attachments_downloaded) + " out=" + r.result.out_dir);

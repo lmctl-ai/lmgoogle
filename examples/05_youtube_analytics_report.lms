@@ -1,0 +1,25 @@
+# Query YouTube Analytics API v2 channel & per-video watch-time reports and export CSV/JSON.
+mkdir("build/examples");
+
+s = load_schema(cli="lmgoogle");
+p = _lmcode_ s;
+  let dims = str_list().add("day").add("video");
+  let mets = str_list().add("views").add("estimatedMinutesWatched").add("likes").add("subscribersGained");
+
+  let rep = google.yt_analytics_report("MINE", "2026-11-01", "2026-11-15", dims, mets);
+  file_write("build/examples/05_yt_analytics.csv", rep.to_csv());
+  file_write("build/examples/05_yt_analytics.json", rep.to_json().to_json());
+
+  let vrep = google.yt_analytics_video_report("MINE", "vid_launch_04", "2026-11-01", "2026-11-15", dims, mets);
+
+  $return.rows = rep.row_count();
+  $return.total_views = int(rep.col_sum(2));
+  $return.total_watch_minutes = int(rep.col_sum(3));
+  $return.launch_rows = vrep.row_count();
+  $return.launch_views = int(vrep.col_sum(2));
+end _lmcode_
+
+r = run_lmcode(p);
+assert(r.ok, "05_youtube_analytics_report failed");
+assert(r.result.rows == 5 && r.result.launch_rows == 2, "unexpected YouTube Analytics row counts");
+println("ok 05_youtube_analytics_report rows=" + str(r.result.rows) + " views=" + str(r.result.total_views) + " watch_min=" + str(r.result.total_watch_minutes));

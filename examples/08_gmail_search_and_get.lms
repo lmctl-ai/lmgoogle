@@ -1,0 +1,39 @@
+# Search Gmail messages and fetch full decoded email details (headers, snippet, body_text, labels).
+mkdir("build/examples");
+
+s = load_schema(cli="lmgoogle");
+p = _lmcode_ s;
+  let profile = google.gmail_profile();
+  let labels = google.gmail_list_labels();
+
+  # 1. Search unread mail matching a query
+  let unread_ids = google.gmail_search_messages("is:unread", 10);
+  let alert_ids = google.gmail_search_messages("from:alerts@acme.example GA4", 10);
+
+  assert_close(float(unread_ids.len()), 2.0, 0.01);
+  assert_close(float(alert_ids.len()), 1.0, 0.01);
+
+  # 2. Fetch full email messages and export summary CSV
+  let csv = "id,thread_id,from,subject,labels\n";
+  for (i in range(0, unread_ids.len())) {
+    let msg = google.gmail_get_message(unread_ids.at(i));
+    csv = csv + msg.id() + "," + msg.thread_id() + "," + msg.from() + "," + msg.subject() + "," + str(msg.label_ids().len()) + "\n";
+  }
+  file_write("build/examples/08_gmail_unread.csv", csv);
+
+  let primary = google.gmail_get_message(alert_ids.at(0));
+  file_write("build/examples/08_gmail_alert.json", primary.to_json().to_json());
+  let thread_ids = google.gmail_get_thread(primary.thread_id());
+
+  $return.mailbox = profile.email_address();
+  $return.labels = labels.len();
+  $return.unread_count = unread_ids.len();
+  $return.alert_subject = primary.subject();
+  $return.has_body = str_contains(primary.body_text(), "totalRevenue=$2940.00");
+  $return.thread_len = thread_ids.len();
+end _lmcode_
+
+r = run_lmcode(p);
+assert(r.ok, "08_gmail_search_and_get failed");
+assert(r.result.unread_count == 2 && r.result.has_body && r.result.thread_len == 2, "unexpected Gmail search/get results");
+println("ok 08_gmail_search_and_get mailbox=" + r.result.mailbox + " unread=" + str(r.result.unread_count) + " subject=" + r.result.alert_subject);

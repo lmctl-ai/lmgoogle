@@ -1,0 +1,1251 @@
+{
+  "dsl.schema": 2,
+  "name": "lmgoogle",
+  "context": {
+    "google": "Google"
+  },
+  "functions": {
+    "assert_close": [
+      {
+        "params": [
+          "float",
+          "float",
+          "float"
+        ],
+        "returns": "void"
+      }
+    ],
+    "print": [
+      {
+        "params": [
+          "string"
+        ],
+        "returns": "void"
+      }
+    ]
+  },
+  "types": {
+    "GaAccount": {
+      "methods": {
+        "account_id": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "deleted": [
+          {
+            "params": [],
+            "returns": "bool"
+          }
+        ],
+        "display_name": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "name": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "region_code": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ]
+      }
+    },
+    "GaCustomDimension": {
+      "methods": {
+        "description": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "display_name": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "name": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "parameter_name": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "scope": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ]
+      }
+    },
+    "GaDataStream": {
+      "methods": {
+        "default_uri": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "display_name": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "measurement_id": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "name": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "stream_id": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "type": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ]
+      }
+    },
+    "GaProperty": {
+      "methods": {
+        "currency_code": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "display_name": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "industry_category": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "name": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "parent": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "property_id": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "property_type": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "service_level": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "time_zone": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ]
+      }
+    },
+    "GaReport": {
+      "methods": {
+        "dimension_headers": [
+          {
+            "params": [],
+            "returns": "StrList"
+          }
+        ],
+        "dimension_value": [
+          {
+            "params": [
+              "int",
+              "int"
+            ],
+            "returns": "string"
+          }
+        ],
+        "metric_float": [
+          {
+            "params": [
+              "int",
+              "int"
+            ],
+            "returns": "float"
+          }
+        ],
+        "metric_headers": [
+          {
+            "params": [],
+            "returns": "StrList"
+          }
+        ],
+        "metric_int": [
+          {
+            "params": [
+              "int",
+              "int"
+            ],
+            "returns": "int"
+          }
+        ],
+        "metric_sum": [
+          {
+            "params": [
+              "int"
+            ],
+            "returns": "float"
+          }
+        ],
+        "metric_value": [
+          {
+            "params": [
+              "int",
+              "int"
+            ],
+            "returns": "string"
+          }
+        ],
+        "row_count": [
+          {
+            "params": [],
+            "returns": "int"
+          }
+        ],
+        "row_map": [
+          {
+            "params": [
+              "int"
+            ],
+            "returns": "StrMap"
+          }
+        ],
+        "to_csv": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "to_json": [
+          {
+            "params": [],
+            "returns": "Json"
+          }
+        ]
+      }
+    },
+    "GmailMessage": {
+      "methods": {
+        "attachment_count": [
+          {
+            "params": [],
+            "returns": "int"
+          }
+        ],
+        "attachment_ids": [
+          {
+            "params": [],
+            "returns": "StrList"
+          }
+        ],
+        "attachment_mimes": [
+          {
+            "params": [],
+            "returns": "StrList"
+          }
+        ],
+        "attachment_names": [
+          {
+            "params": [],
+            "returns": "StrList"
+          }
+        ],
+        "body_text": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "date": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "date_iso": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "from": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "has_label": [
+          {
+            "params": [
+              "string"
+            ],
+            "returns": "bool"
+          }
+        ],
+        "header": [
+          {
+            "params": [
+              "string"
+            ],
+            "returns": "string"
+          }
+        ],
+        "headers": [
+          {
+            "params": [],
+            "returns": "StrMap"
+          }
+        ],
+        "id": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "label_ids": [
+          {
+            "params": [],
+            "returns": "StrList"
+          }
+        ],
+        "snippet": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "subject": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "thread_id": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "timestamp_slug": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "to": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "to_json": [
+          {
+            "params": [],
+            "returns": "Json"
+          }
+        ]
+      }
+    },
+    "GmailProfile": {
+      "methods": {
+        "email_address": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "history_id": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "messages_total": [
+          {
+            "params": [],
+            "returns": "int"
+          }
+        ],
+        "threads_total": [
+          {
+            "params": [],
+            "returns": "int"
+          }
+        ]
+      }
+    },
+    "Google": {
+      "methods": {
+        "alloc_scratch_mb": [
+          {
+            "params": [
+              "int"
+            ],
+            "returns": "bool"
+          }
+        ],
+        "auth_mode": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "cleanup_ledger": [
+          {
+            "params": [],
+            "returns": "int"
+          }
+        ],
+        "endpoint": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "ga_create_custom_dimension": [
+          {
+            "params": [
+              "string",
+              "string",
+              "string",
+              "string"
+            ],
+            "returns": "GaCustomDimension"
+          }
+        ],
+        "ga_create_key_event": [
+          {
+            "params": [
+              "string",
+              "string",
+              "string"
+            ],
+            "returns": "bool"
+          }
+        ],
+        "ga_create_property": [
+          {
+            "params": [
+              "string",
+              "string",
+              "string",
+              "string"
+            ],
+            "returns": "GaProperty"
+          }
+        ],
+        "ga_create_web_stream": [
+          {
+            "params": [
+              "string",
+              "string",
+              "string"
+            ],
+            "returns": "GaDataStream"
+          }
+        ],
+        "ga_delete_data_stream": [
+          {
+            "params": [
+              "string"
+            ],
+            "returns": "bool"
+          }
+        ],
+        "ga_delete_property": [
+          {
+            "params": [
+              "string"
+            ],
+            "returns": "bool"
+          }
+        ],
+        "ga_get_account": [
+          {
+            "params": [
+              "string"
+            ],
+            "returns": "GaAccount"
+          }
+        ],
+        "ga_get_data_stream": [
+          {
+            "params": [
+              "string"
+            ],
+            "returns": "GaDataStream"
+          }
+        ],
+        "ga_get_metadata": [
+          {
+            "params": [
+              "string"
+            ],
+            "returns": "StrMap"
+          }
+        ],
+        "ga_get_property": [
+          {
+            "params": [
+              "string"
+            ],
+            "returns": "GaProperty"
+          }
+        ],
+        "ga_list_account_summaries": [
+          {
+            "params": [],
+            "returns": "StrList"
+          }
+        ],
+        "ga_list_accounts": [
+          {
+            "params": [],
+            "returns": "StrList"
+          }
+        ],
+        "ga_list_custom_dimensions": [
+          {
+            "params": [
+              "string"
+            ],
+            "returns": "StrList"
+          }
+        ],
+        "ga_list_data_streams": [
+          {
+            "params": [
+              "string"
+            ],
+            "returns": "StrList"
+          }
+        ],
+        "ga_list_key_events": [
+          {
+            "params": [
+              "string"
+            ],
+            "returns": "StrList"
+          }
+        ],
+        "ga_list_properties": [
+          {
+            "params": [
+              "string"
+            ],
+            "returns": "StrList"
+          }
+        ],
+        "ga_run_realtime_report": [
+          {
+            "params": [
+              "string",
+              "StrList",
+              "StrList",
+              "int"
+            ],
+            "returns": "GaReport"
+          }
+        ],
+        "ga_run_report": [
+          {
+            "params": [
+              "string",
+              "string",
+              "string",
+              "StrList",
+              "StrList"
+            ],
+            "returns": "GaReport"
+          }
+        ],
+        "ga_run_report_filtered": [
+          {
+            "params": [
+              "string",
+              "string",
+              "string",
+              "StrList",
+              "StrList",
+              "string",
+              "string",
+              "int"
+            ],
+            "returns": "GaReport"
+          }
+        ],
+        "ga_update_property": [
+          {
+            "params": [
+              "string",
+              "string",
+              "string",
+              "string"
+            ],
+            "returns": "GaProperty"
+          }
+        ],
+        "gmail_delete_message": [
+          {
+            "params": [
+              "string"
+            ],
+            "returns": "bool"
+          }
+        ],
+        "gmail_download_attachments": [
+          {
+            "params": [
+              "string",
+              "string"
+            ],
+            "returns": "StrList"
+          }
+        ],
+        "gmail_download_attachments_prefixed": [
+          {
+            "params": [
+              "string",
+              "string",
+              "string"
+            ],
+            "returns": "StrList"
+          }
+        ],
+        "gmail_get_message": [
+          {
+            "params": [
+              "string"
+            ],
+            "returns": "GmailMessage"
+          }
+        ],
+        "gmail_get_thread": [
+          {
+            "params": [
+              "string"
+            ],
+            "returns": "StrList"
+          }
+        ],
+        "gmail_list_labels": [
+          {
+            "params": [],
+            "returns": "StrList"
+          }
+        ],
+        "gmail_modify_labels": [
+          {
+            "params": [
+              "string",
+              "StrList",
+              "StrList"
+            ],
+            "returns": "GmailMessage"
+          }
+        ],
+        "gmail_profile": [
+          {
+            "params": [],
+            "returns": "GmailProfile"
+          }
+        ],
+        "gmail_search_messages": [
+          {
+            "params": [
+              "string",
+              "int"
+            ],
+            "returns": "StrList"
+          }
+        ],
+        "gmail_send_message": [
+          {
+            "params": [
+              "string",
+              "string",
+              "string"
+            ],
+            "returns": "GmailMessage"
+          }
+        ],
+        "gmail_trash_message": [
+          {
+            "params": [
+              "string"
+            ],
+            "returns": "bool"
+          }
+        ],
+        "inventory_summary": [
+          {
+            "params": [],
+            "returns": "StrMap"
+          }
+        ],
+        "is_live": [
+          {
+            "params": [],
+            "returns": "bool"
+          }
+        ],
+        "last_error": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "ledger_count": [
+          {
+            "params": [],
+            "returns": "int"
+          }
+        ],
+        "ledger_entries": [
+          {
+            "params": [],
+            "returns": "StrList"
+          }
+        ],
+        "ledger_owns": [
+          {
+            "params": [
+              "string",
+              "string"
+            ],
+            "returns": "bool"
+          }
+        ],
+        "quota_limit": [
+          {
+            "params": [],
+            "returns": "int"
+          }
+        ],
+        "quota_used": [
+          {
+            "params": [],
+            "returns": "int"
+          }
+        ],
+        "readonly_mode": [
+          {
+            "params": [],
+            "returns": "bool"
+          }
+        ],
+        "redact": [
+          {
+            "params": [
+              "string"
+            ],
+            "returns": "string"
+          }
+        ],
+        "run_id": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "set_quota_limit": [
+          {
+            "params": [
+              "int"
+            ],
+            "returns": "bool"
+          }
+        ],
+        "set_readonly_mode": [
+          {
+            "params": [
+              "bool"
+            ],
+            "returns": "Google"
+          }
+        ],
+        "yt_add_playlist_item": [
+          {
+            "params": [
+              "string",
+              "string"
+            ],
+            "returns": "bool"
+          }
+        ],
+        "yt_analytics_report": [
+          {
+            "params": [
+              "string",
+              "string",
+              "string",
+              "StrList",
+              "StrList"
+            ],
+            "returns": "YtAnalyticsReport"
+          }
+        ],
+        "yt_analytics_video_report": [
+          {
+            "params": [
+              "string",
+              "string",
+              "string",
+              "string",
+              "StrList",
+              "StrList"
+            ],
+            "returns": "YtAnalyticsReport"
+          }
+        ],
+        "yt_create_playlist": [
+          {
+            "params": [
+              "string",
+              "string",
+              "string"
+            ],
+            "returns": "YtPlaylist"
+          }
+        ],
+        "yt_delete_playlist": [
+          {
+            "params": [
+              "string"
+            ],
+            "returns": "bool"
+          }
+        ],
+        "yt_delete_video": [
+          {
+            "params": [
+              "string"
+            ],
+            "returns": "bool"
+          }
+        ],
+        "yt_get_channel": [
+          {
+            "params": [
+              "string"
+            ],
+            "returns": "YtChannel"
+          }
+        ],
+        "yt_get_playlist": [
+          {
+            "params": [
+              "string"
+            ],
+            "returns": "YtPlaylist"
+          }
+        ],
+        "yt_get_video": [
+          {
+            "params": [
+              "string"
+            ],
+            "returns": "YtVideo"
+          }
+        ],
+        "yt_list_channels": [
+          {
+            "params": [
+              "string"
+            ],
+            "returns": "StrList"
+          }
+        ],
+        "yt_list_comments": [
+          {
+            "params": [
+              "string",
+              "int"
+            ],
+            "returns": "StrList"
+          }
+        ],
+        "yt_list_playlist_items": [
+          {
+            "params": [
+              "string",
+              "int"
+            ],
+            "returns": "StrList"
+          }
+        ],
+        "yt_list_playlists": [
+          {
+            "params": [
+              "string"
+            ],
+            "returns": "StrList"
+          }
+        ],
+        "yt_my_channel": [
+          {
+            "params": [],
+            "returns": "YtChannel"
+          }
+        ],
+        "yt_post_comment": [
+          {
+            "params": [
+              "string",
+              "string"
+            ],
+            "returns": "string"
+          }
+        ],
+        "yt_search_videos": [
+          {
+            "params": [
+              "string",
+              "int"
+            ],
+            "returns": "StrList"
+          }
+        ],
+        "yt_search_videos_in_channel": [
+          {
+            "params": [
+              "string",
+              "string",
+              "int"
+            ],
+            "returns": "StrList"
+          }
+        ],
+        "yt_update_video": [
+          {
+            "params": [
+              "string",
+              "string",
+              "string",
+              "StrList",
+              "string"
+            ],
+            "returns": "YtVideo"
+          }
+        ],
+        "yt_upload_video": [
+          {
+            "params": [
+              "string",
+              "string",
+              "string",
+              "StrList",
+              "string",
+              "string"
+            ],
+            "returns": "YtVideo"
+          }
+        ]
+      }
+    },
+    "YtAnalyticsReport": {
+      "methods": {
+        "cell_float": [
+          {
+            "params": [
+              "int",
+              "int"
+            ],
+            "returns": "float"
+          }
+        ],
+        "cell_int": [
+          {
+            "params": [
+              "int",
+              "int"
+            ],
+            "returns": "int"
+          }
+        ],
+        "cell_str": [
+          {
+            "params": [
+              "int",
+              "int"
+            ],
+            "returns": "string"
+          }
+        ],
+        "col_sum": [
+          {
+            "params": [
+              "int"
+            ],
+            "returns": "float"
+          }
+        ],
+        "column_headers": [
+          {
+            "params": [],
+            "returns": "StrList"
+          }
+        ],
+        "row_count": [
+          {
+            "params": [],
+            "returns": "int"
+          }
+        ],
+        "row_map": [
+          {
+            "params": [
+              "int"
+            ],
+            "returns": "StrMap"
+          }
+        ],
+        "to_csv": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "to_json": [
+          {
+            "params": [],
+            "returns": "Json"
+          }
+        ]
+      }
+    },
+    "YtChannel": {
+      "methods": {
+        "country": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "custom_url": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "description": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "id": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "subscriber_count": [
+          {
+            "params": [],
+            "returns": "int"
+          }
+        ],
+        "title": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "uploads_playlist_id": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "video_count": [
+          {
+            "params": [],
+            "returns": "int"
+          }
+        ],
+        "view_count": [
+          {
+            "params": [],
+            "returns": "int"
+          }
+        ]
+      }
+    },
+    "YtPlaylist": {
+      "methods": {
+        "channel_id": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "description": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "id": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "item_count": [
+          {
+            "params": [],
+            "returns": "int"
+          }
+        ],
+        "privacy_status": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "title": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ]
+      }
+    },
+    "YtVideo": {
+      "methods": {
+        "category_id": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "channel_id": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "channel_title": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "comment_count": [
+          {
+            "params": [],
+            "returns": "int"
+          }
+        ],
+        "description": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "duration": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "id": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "like_count": [
+          {
+            "params": [],
+            "returns": "int"
+          }
+        ],
+        "privacy_status": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "published_at": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "tags": [
+          {
+            "params": [],
+            "returns": "StrList"
+          }
+        ],
+        "title": [
+          {
+            "params": [],
+            "returns": "string"
+          }
+        ],
+        "view_count": [
+          {
+            "params": [],
+            "returns": "int"
+          }
+        ]
+      }
+    }
+  }
+}

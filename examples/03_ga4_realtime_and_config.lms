@@ -1,0 +1,32 @@
+# Query GA4 realtime active users and exercise ephemeral GA4 property/stream lifecycle with cleanup.
+s = load_schema(cli="lmgoogle");
+p = _lmcode_ s;
+  let rt_dims = str_list().add("country").add("deviceCategory");
+  let rt_mets = str_list().add("activeUsers").add("screenPageViews");
+  let rt = google.ga_run_realtime_report("3001001", rt_dims, rt_mets, 5);
+  let meta = google.ga_get_metadata("3001001");
+
+  let prop = google.ga_create_property("accounts/1002", "Ephemeral Staging GA4", "America/Chicago", "USD");
+  let updated = google.ga_update_property(prop.name(), "Ephemeral Staging GA4 v2", "", "");
+  let stream = google.ga_create_web_stream(prop.name(), "Staging Web", "https://staging.acme.example");
+  let cd = google.ga_create_custom_dimension(prop.name(), "build_sha", "Build SHA", "EVENT");
+  let ke_ok = google.ga_create_key_event(prop.name(), "checkout_complete", "ONCE_PER_EVENT");
+
+  let tracked = google.ledger_count();
+  let cleaned = google.cleanup_ledger();
+
+  $return.realtime_rows = rt.row_count();
+  $return.has_country_meta = meta.has("dim:country");
+  $return.updated_name = updated.display_name();
+  $return.measurement_id = stream.measurement_id();
+  $return.custom_dim = cd.parameter_name();
+  $return.key_event_ok = ke_ok;
+  $return.tracked = tracked;
+  $return.cleaned = cleaned;
+  $return.remaining = google.ledger_count();
+end _lmcode_
+
+r = run_lmcode(p);
+assert(r.ok, "03_ga4_realtime_and_config failed");
+assert(r.result.cleaned == 2 && r.result.remaining == 0, "expected full cleanup");
+println("ok 03_ga4_realtime_and_config rt_rows=" + str(r.result.realtime_rows) + " cleaned=" + str(r.result.cleaned));

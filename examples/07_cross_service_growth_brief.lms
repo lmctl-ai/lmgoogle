@@ -1,0 +1,38 @@
+# Cross-service brief: correlate GA4 Organic Video web traffic with YouTube channel & analytics metrics.
+mkdir("build/examples");
+
+s = load_schema(cli="lmgoogle");
+p = _lmcode_ s;
+  let prop = google.ga_get_property("3001001");
+  let ga_dims = str_list().add("country").add("sessionDefaultChannelGroup");
+  let ga_mets = str_list().add("activeUsers").add("conversions").add("totalRevenue");
+  let ga_video = google.ga_run_report_filtered("3001001", "7daysAgo", "today", ga_dims, ga_mets, "sessionDefaultChannelGroup", "Organic Video", 10);
+
+  let ch = google.yt_my_channel();
+  let yt_dims = str_list().add("day");
+  let yt_mets = str_list().add("views").add("estimatedMinutesWatched").add("subscribersGained");
+  let yt_rep = google.yt_analytics_report("MINE", "2026-11-01", "2026-11-15", yt_dims, yt_mets);
+
+  let brief_json = "{\"property\":\"" + prop.display_name() + "\","
+    + "\"ga_video_users\":" + str(int(ga_video.metric_sum(0))) + ","
+    + "\"ga_video_revenue\":" + str(ga_video.metric_sum(2)) + ","
+    + "\"yt_channel\":\"" + ch.title() + "\","
+    + "\"yt_subscribers\":" + str(ch.subscriber_count()) + ","
+    + "\"yt_recent_views\":" + str(int(yt_rep.col_sum(1))) + ","
+    + "\"yt_watch_minutes\":" + str(int(yt_rep.col_sum(2))) + "}";
+
+  let tmpl = "# Growth Brief\n"
+    + "- GA4 Property: <property> (Organic Video users=<ga_video_users>, revenue=$<ga_video_revenue>)\n"
+    + "- YouTube Channel: <yt_channel> (subs=<yt_subscribers>, recent_views=<yt_recent_views>, watch_min=<yt_watch_minutes>)\n";
+  let md = template_render(tmpl, json_parse(brief_json));
+  file_write("build/examples/07_growth_brief.md", md);
+
+  $return.ga_video_users = int(ga_video.metric_sum(0));
+  $return.yt_recent_views = int(yt_rep.col_sum(1));
+  $return.quota_used = google.quota_used();
+end _lmcode_
+
+r = run_lmcode(p);
+assert(r.ok, "07_cross_service_growth_brief failed");
+assert(r.result.ga_video_users == 980 && r.result.yt_recent_views > 20000, "unexpected cross-service totals");
+println("ok 07_cross_service_growth_brief ga_video_users=" + str(r.result.ga_video_users) + " yt_views=" + str(r.result.yt_recent_views));

@@ -1,0 +1,39 @@
+# Discover GA4 accounts, properties, data streams, custom dimensions, and key events.
+mkdir("build/examples");
+
+s = load_schema(cli="lmgoogle");
+p = _lmcode_ s;
+  let accounts = google.ga_list_accounts();
+  let props = google.ga_list_properties("");
+  let inv = google.inventory_summary();
+
+  assert_close(float(accounts.len()), 2.0, 0.01);
+  assert_close(float(props.len()), 3.0, 0.01);
+
+  let csv = "property,display_name,timezone,currency,streams\n";
+  for (i in range(0, props.len())) {
+    let prop_name = props.at(i);
+    let prop = google.ga_get_property(prop_name);
+    let streams = google.ga_list_data_streams(prop_name);
+    csv = csv + prop.property_id() + "," + prop.display_name() + "," + prop.time_zone() + "," + prop.currency_code() + "," + str(streams.len()) + "\n";
+  }
+  file_write("build/examples/01_ga4_inventory.csv", csv);
+
+  let primary_streams = google.ga_list_data_streams("3001001");
+  let stream = google.ga_get_data_stream(primary_streams.at(0));
+  let dims = google.ga_list_custom_dimensions("3001001");
+  let key_events = google.ga_list_key_events("3001001");
+
+  $return.auth_mode = google.auth_mode();
+  $return.accounts = accounts.len();
+  $return.properties = props.len();
+  $return.measurement_id = stream.measurement_id();
+  $return.custom_dimensions = dims.len();
+  $return.key_events = key_events.len();
+  $return.quota_used = google.quota_used();
+end _lmcode_
+
+r = run_lmcode(p);
+assert(r.ok, "01_ga4_property_inventory failed");
+assert(r.result.measurement_id == "G-ACME1001WEB", "unexpected measurement id");
+println("ok 01_ga4_property_inventory accounts=" + str(r.result.accounts) + " props=" + str(r.result.properties) + " measurement=" + r.result.measurement_id);

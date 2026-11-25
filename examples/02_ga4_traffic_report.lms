@@ -1,0 +1,30 @@
+# Run GA4 Data API v1beta traffic & revenue reports, filter by country, and export CSV + JSON.
+mkdir("build/examples");
+
+s = load_schema(cli="lmgoogle");
+p = _lmcode_ s;
+  let dims = str_list().add("country").add("deviceCategory").add("sessionDefaultChannelGroup");
+  let mets = str_list().add("activeUsers").add("sessions").add("conversions").add("totalRevenue");
+
+  let rep = google.ga_run_report("3001001", "7daysAgo", "today", dims, mets);
+  let rows = rep.row_count();
+  let total_users = rep.metric_sum(0);
+  let total_rev = rep.metric_sum(3);
+
+  file_write("build/examples/02_ga4_traffic.csv", rep.to_csv());
+  file_write("build/examples/02_ga4_traffic.json", rep.to_json().to_json());
+
+  let us_dims = str_list().add("country").add("deviceCategory");
+  let us_mets = str_list().add("activeUsers").add("sessions");
+  let us_rep = google.ga_run_report_filtered("3001001", "7daysAgo", "today", us_dims, us_mets, "country", "United States", 10);
+
+  $return.rows = rows;
+  $return.us_rows = us_rep.row_count();
+  $return.total_active_users = int(total_users);
+  $return.total_revenue = total_rev;
+end _lmcode_
+
+r = run_lmcode(p);
+assert(r.ok, "02_ga4_traffic_report failed");
+assert(r.result.rows == 6 && r.result.us_rows == 2, "unexpected GA4 report row counts");
+println("ok 02_ga4_traffic_report rows=" + str(r.result.rows) + " users=" + str(r.result.total_active_users) + " rev=" + str(r.result.total_revenue));

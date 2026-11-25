@@ -1,0 +1,165 @@
+# Export all GA4 properties, web streams (channel/measurement IDs), 30-day metrics,
+# and Google tag (gtag.js) HTML + JS snippets into an export directory with index.md and channels.json.
+#
+# Live run:
+#   LMGOOGLE_LIVE=1 LMGOOGLE_READ_ONLY=1 lmscript examples/10_ga4_export_channels.lms
+# Optional override: GA4_OUT_DIR="/path/to/export_dir"
+
+out_dir = env("GA4_OUT_DIR");
+if (!out_dir) {
+  if (env("LMGOOGLE_LIVE") == "1" && env("HOME")) {
+    out_dir = path_join(env("HOME"), "ga4_exports");
+  } else {
+    out_dir = path_join("build", "examples", "10_ga4_channels");
+  }
+}
+mkdir(out_dir);
+mkdir(path_join(out_dir, "snippets"));
+
+s = load_schema(cli="lmgoogle");
+p = _lmcode_ s;
+  let dir = ${out_dir};
+  let props = google.ga_list_properties("");
+  let dims = str_list();
+  let mets = str_list().add("activeUsers").add("screenPageViews").add("sessions");
+
+  let index_md = "# Google Analytics 4 Channels & Snippets\n\n"
+    + "- **Properties:** " + str(props.len()) + "\n"
+    + "- **Output directory:** `" + dir + "`\n\n"
+    + "## Channels\n\n"
+    + "| Property | Name | Website URI | Stream ID | Measurement ID | 30d Users / Views / Sessions | Snippets |\n"
+    + "|---|---|---|---|---|---|---|\n";
+
+  let snippets_md = "\n## JavaScript Snippets (`gtag.js`)\n";
+  let json_out = "{\n  \"properties\": [\n";
+  let stream_count = 0;
+
+  for (pi in range(0, props.len())) {
+    let pr = google.ga_get_property(props.at(pi));
+    let streams = google.ga_list_data_streams(pr.name());
+    let rep = google.ga_run_report(pr.name(), "30daysAgo", "today", dims, mets);
+    let rep_err = google.last_error();
+
+    let metrics_summary = "0 / 0 / 0";
+    let users_v = "0";
+    let views_v = "0";
+    let sess_v = "0";
+    if (rep_err != "") {
+      metrics_summary = "unavailable";
+    } else if (rep.row_count() > 0) {
+      users_v = rep.metric_value(0, 0);
+      views_v = rep.metric_value(0, 1);
+      sess_v = rep.metric_value(0, 2);
+      metrics_summary = users_v + " / " + views_v + " / " + sess_v;
+    }
+
+    if (pi > 0) {
+      json_out = json_out + ",\n";
+    }
+    let safe_pname = str_replace(pr.display_name(), "\"", "\\\"");
+    json_out = json_out
+      + "    {\n"
+      + "      \"account\": \"" + pr.parent() + "\",\n"
+      + "      \"property\": \"" + pr.name() + "\",\n"
+      + "      \"property_id\": \"" + pr.property_id() + "\",\n"
+      + "      \"display_name\": \"" + safe_pname + "\",\n"
+      + "      \"time_zone\": \"" + pr.time_zone() + "\",\n"
+      + "      \"currency_code\": \"" + pr.currency_code() + "\",\n"
+      + "      \"metrics_30d\": {\"activeUsers\": \"" + users_v + "\", \"screenPageViews\": \"" + views_v + "\", \"sessions\": \"" + sess_v + "\"},\n"
+      + "      \"streams\": [\n";
+
+    for (si in range(0, streams.len())) {
+      let st = google.ga_get_data_stream(streams.at(si));
+      stream_count = stream_count + 1;
+      let mid = st.measurement_id();
+      let uri = st.default_uri();
+
+      let slug = uri;
+      if (slug == "") { slug = pr.property_id(); }
+      slug = str_replace(slug, "https://", "");
+      slug = str_replace(slug, "http://", "");
+      slug = str_replace(slug, "/", "_");
+      slug = str_replace(slug, ":", "_");
+      let file_base = slug;
+      if (mid != "") {
+        file_base = slug + "_" + mid;
+      }
+
+      let html_name = file_base + "_gtag.html";
+      let js_name = file_base + "_gtag.js";
+
+      let gtag_html = "";
+      let gtag_js = "";
+      if (mid != "") {
+        gtag_html = "<!-- Google tag (gtag.js) -->\n"
+          + "<script async src=\"https://www.googletagmanager.com/gtag/js?id=" + mid + "\"></script>\n"
+          + "<script>\n"
+          + "  window.dataLayer = window.dataLayer || [];\n"
+          + "  function gtag(){dataLayer.push(arguments);}\n"
+          + "  gtag('js', new Date());\n\n"
+          + "  gtag('config', '" + mid + "');\n"
+          + "</script>\n";
+
+        gtag_js = "// Google tag (gtag.js) loader for " + uri + " (" + mid + ")\n"
+          + "(function() {\n"
+          + "  var s = document.createElement('script');\n"
+          + "  s.async = true;\n"
+          + "  s.src = 'https://www.googletagmanager.com/gtag/js?id=" + mid + "';\n"
+          + "  document.head.appendChild(s);\n"
+          + "  window.dataLayer = window.dataLayer || [];\n"
+          + "  window.gtag = function(){ window.dataLayer.push(arguments); };\n"
+          + "  window.gtag('js', new Date());\n"
+          + "  window.gtag('config', '" + mid + "');\n"
+          + "})();\n";
+      }
+
+      file_write(dir + "/snippets/" + html_name, gtag_html);
+      file_write(dir + "/snippets/" + js_name, gtag_js);
+
+      let safe_sname = str_replace(st.display_name(), "\"", "\\\"");
+      if (si > 0) {
+        json_out = json_out + ",\n";
+      }
+      json_out = json_out
+        + "        {\n"
+        + "          \"stream\": \"" + st.name() + "\",\n"
+        + "          \"stream_id\": \"" + st.stream_id() + "\",\n"
+        + "          \"type\": \"" + st.type() + "\",\n"
+        + "          \"display_name\": \"" + safe_sname + "\",\n"
+        + "          \"default_uri\": \"" + uri + "\",\n"
+        + "          \"measurement_id\": \"" + mid + "\",\n"
+        + "          \"gtag_src\": \"https://www.googletagmanager.com/gtag/js?id=" + mid + "\",\n"
+        + "          \"html_snippet_file\": \"snippets/" + html_name + "\",\n"
+        + "          \"js_snippet_file\": \"snippets/" + js_name + "\"\n"
+        + "        }";
+
+      let md_pname = str_replace(pr.display_name(), "|", "\\|");
+      let snip_links = "[`" + html_name + "`](./snippets/" + html_name + "), [`" + js_name + "`](./snippets/" + js_name + ")";
+      index_md = index_md
+        + "| `" + pr.property_id() + "` | " + md_pname + " | " + uri + " | `" + st.stream_id() + "` | `" + mid + "` | " + metrics_summary + " | " + snip_links + " |\n";
+
+      if (mid != "") {
+        snippets_md = snippets_md
+          + "\n### " + pr.display_name() + " (`" + mid + "`)\n\n"
+          + "- **Property:** `" + pr.name() + "`\n"
+          + "- **Stream:** `" + st.name() + "`\n"
+          + "- **Website URI:** " + uri + "\n"
+          + "- **Saved files:** [`snippets/" + html_name + "`](./snippets/" + html_name + "), [`snippets/" + js_name + "`](./snippets/" + js_name + ")\n\n"
+          + "```html\n" + gtag_html + "```\n";
+      }
+    }
+    json_out = json_out + "\n      ]\n    }";
+  }
+
+  json_out = json_out + "\n  ]\n}\n";
+  file_write(dir + "/channels.json", json_out);
+  file_write(dir + "/index.md", index_md + snippets_md);
+
+  $return.properties = props.len();
+  $return.streams = stream_count;
+  $return.out_dir = dir;
+end _lmcode_
+
+r = run_lmcode(p);
+assert(r.ok, "10_ga4_export_channels failed");
+println("ok 10_ga4_export_channels properties=" + str(r.result.properties) + " streams=" + str(r.result.streams) + " out=" + r.result.out_dir);

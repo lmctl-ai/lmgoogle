@@ -1,0 +1,30 @@
+# Inspect YouTube channel, search videos, read video metrics & comment threads.
+mkdir("build/examples");
+
+s = load_schema(cli="lmgoogle");
+p = _lmcode_ s;
+  let ch = google.yt_my_channel();
+  let hits = google.yt_search_videos_in_channel(ch.id(), "Go", 10);
+
+  let csv = "video_id,title,views,likes,comments,privacy\n";
+  let total_views = 0;
+  for (i in range(0, hits.len())) {
+    let v = google.yt_get_video(hits.at(i));
+    total_views = total_views + v.view_count();
+    csv = csv + v.id() + "," + v.title() + "," + str(v.view_count()) + "," + str(v.like_count()) + "," + str(v.comment_count()) + "," + v.privacy_status() + "\n";
+  }
+  file_write("build/examples/04_youtube_videos.csv", csv);
+
+  let comments = google.yt_list_comments("vid_go_cli_01", 10);
+
+  $return.channel_title = ch.title();
+  $return.subscribers = ch.subscriber_count();
+  $return.hits = hits.len();
+  $return.hit_views = total_views;
+  $return.comments = comments.len();
+end _lmcode_
+
+r = run_lmcode(p);
+assert(r.ok, "04_youtube_channel_and_videos failed");
+assert(r.result.hits >= 2 && r.result.comments == 2, "unexpected YouTube read counts");
+println("ok 04_youtube_channel_and_videos channel=" + r.result.channel_title + " hits=" + str(r.result.hits));

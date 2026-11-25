@@ -1,0 +1,32 @@
+# Upload a video file, update metadata, create a playlist, attach the video, post a comment, and clean up.
+mkdir("build/examples");
+
+s = load_schema(cli="lmgoogle");
+p = _lmcode_ s;
+  let media = "build/examples/sample_upload.mp4";
+  file_write(media, "demo-mp4-stream-payload");
+
+  let tags = str_list().add("lmgoogle").add("automation");
+  let vid = google.yt_upload_video(media, "Demo CLI Upload", "Uploaded by lmscript", tags, "28", "private");
+  let upd = google.yt_update_video(vid.id(), "Demo CLI Upload (Ready)", "Updated description", tags, "unlisted");
+
+  let pl = google.yt_create_playlist("Release Demos", "Automated playlist", "private");
+  let added = google.yt_add_playlist_item(pl.id(), upd.id());
+  let items = google.yt_list_playlist_items(pl.id(), 10);
+  let comment_id = google.yt_post_comment(upd.id(), "Smoke test comment");
+
+  let cleaned = google.cleanup_ledger();
+
+  $return.video_id = upd.id();
+  $return.privacy = upd.privacy_status();
+  $return.playlist_items = items.len();
+  $return.added = added;
+  $return.has_comment = str_len(comment_id) > 0;
+  $return.cleaned = cleaned;
+  $return.remaining = google.ledger_count();
+end _lmcode_
+
+r = run_lmcode(p);
+assert(r.ok, "06_youtube_playlist_and_upload failed");
+assert(r.result.added && r.result.playlist_items == 1 && r.result.cleaned == 2 && r.result.remaining == 0, "upload/playlist lifecycle mismatch");
+println("ok 06_youtube_playlist_and_upload video=" + r.result.video_id + " cleaned=" + str(r.result.cleaned));
